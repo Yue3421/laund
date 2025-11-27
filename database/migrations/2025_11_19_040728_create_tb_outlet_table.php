@@ -9,10 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tb_outlet', function (Blueprint $table) {
-            $table->integer('id', true)->unsigned();
+            $table->id(); // id: int(11) PK
             $table->string('nama', 100);
             $table->text('alamat');
             $table->string('tlp', 15);
+            $table->timestamps();
         });
     }
 

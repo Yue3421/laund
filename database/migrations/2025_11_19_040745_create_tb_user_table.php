@@ -6,25 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('tb_user', function (Blueprint $table) {
-            $table->integer('id', true)->unsigned();
+            $table->id(); // id: int(11) PK
             $table->string('nama', 100);
-            $table->string('username', 50);
-            $table->string('password', 255);
-            $table->unsignedInteger('id_outlet');
+            $table->string('username', 30);
+            $table->text('password');
+            $table->foreignId('id_outlet')->constrained('tb_outlet')->onDelete('cascade'); // Relasi ke tb_outlet
             $table->enum('role', ['admin', 'kasir', 'owner']);
-            $table->foreign('id_outlet')->references('id')->on('tb_outlet')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('tb_user');

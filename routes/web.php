@@ -1,20 +1,46 @@
+// routes/web.php
+
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OutletController;
+use App\Http\Controllers\MemberController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PaketController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\LaporanController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Default Breeze routes are assumed to be present for auth (login, logout, register)
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
+// Protected routes for dashboard and features
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+    Route::get('/dashboard', function () {
+        $role = Auth::user()->role;
+        if ($role === 'admin') {
+            return view('admin.dashboard');
+        } elseif ($role === 'kasir') {
+            return view('kasir.dashboard');
+        } elseif ($role === 'owner') {
+            return view('owner.dashboard');
+        }
+        abort(403);
+    })->name('dashboard');
 
-require __DIR__.'/auth.php';
+    // CRUD Outlet (only admin)
+    Route::resource('outlets', OutletController::class);
+
+    // Registrasi Pelanggan / CRUD Member (admin and kasir)
+    Route::resource('members', MemberController::class);
+
+    // CRUD Pengguna (only admin)
+    Route::resource('users', UserController::class);
+
+    // CRUD Paket (only admin)
+    Route::resource('pakets', PaketController::class);
+
+    // Entri Transaksi / CRUD Transaksi (admin and kasir)
+    Route::resource('transaksis', TransaksiController::class);
+
+    // Generate Laporan (admin, kasir, owner)
+    Route::get('/laporans', [LaporanController::class, 'index'])->name('laporans.index');
+});
